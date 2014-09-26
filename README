@@ -1,0 +1,5 @@
+First copy the ~/.bash_history file to the directory before this one.
+Second clear the history buffer history -c
+Third Do the work
+Fourth After the work save the history buffer history -w history/history-Task.X.$(date %Y%m%d%H%M)
+DONE :)
