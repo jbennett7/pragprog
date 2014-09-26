@@ -1,0 +1,42 @@
+mkdir pragprog
+mkdir pragprog/history
+cd pragprog/
+rails new depot
+ls
+cd depot
+vim Gemfile
+rails generate scaffold Product title:string description:text image_url:string price:decimal
+vim db/migrate/20140926173248_create_products.rb 
+rake db:migrate
+vim app/views/products/_form.html.erb 
+cd db/
+cat seeds.rb 
+rm -f seeds.rb 
+wget http://media.pragprog.com/titles/rails4/code/rails40/depot_a/db/seeds.rb
+cd ../app/assets/images/
+cp ~/test/* .
+ls
+rake db:seed
+cd ../../..
+vim app/assets/stylesheets/products.css.scss 
+vim app/views/layouts/application.html.erb 
+vim app/views/products/index.html.erb 
+rake db:rollback
+rake db:migrate
+rake db:seed
+cd ..
+cat > .gitignore <<EOF
+
+/depot/.bundle
+
+/depot/db/*.sqlite3
+/depot/db/*.sqlite3-journal
+
+/depot/log/*.log
+/tmp
+EOF
+
+git init
+git add .
+git commit -m "Initial commit"
+history -w history/history.task.A.$(date +%Y%m%d%H%M)

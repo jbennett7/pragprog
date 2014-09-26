@@ -1,0 +1,102 @@
+This is my journal, or notes from the book: Agile Web Development with Rails 4, Sam Ruby, Dave Thomas and David Heinemeier Hansson, From the Pragmatic Programmers Book series.
+
+The first part of the book is an introduciton into Rails, how to install it, and how to get a quick rails application up and running.
+
+Rails Application architecture takes on the Models, Views, and Controllers design.
+
+The model is responsible for maintaining the state of the application.  A model is more than just data; it enforces all the business rules that apply to that data.
+
+The view is responsible for generating a user interface, normally based on data in the model.
+
+Controllers orchestrate the application.  Controllers receive events from the outside world (normally user input), interact with the model, and display an appropriate view to the user.
+
+The Model-View-Controller Architecture
+
+  +-----------+     +------------+
+  |  Browser  | --> | Controller |
+  +-----------+     +------------+
+       /\          /            /\ \
+         \       \/               \ \/
+          +------+                 +-------+      ,==========.
+          | View | <-------------- | Model |<---> | Database |
+          +------+                 +-------+      `=========='
+
+
+In a Rails application, an incoming request is first sent to a router, which works out where in the application the request should be sent and how the request itself should be parsed.  Ultimately, this phase identifies a particular method (called an action in Rails parlance) somewhere in the controller code.
+
+Rails handles an incoming request as shown in the following figure:
+
+                       +---------+
+                   *-> | Routing |
+                  /    +---------+
+                 *         |
+                 *        \ /
+  +-----------+ /   +------------+
+  |  Browser  | --> | Controller |
+  +-----------+     +------------+
+       /\          /            /\ \
+         \       \/               \ \/
+          +------+                 +-------+      ,==========.
+          | View | <-------------- | Model |<---> | Database |
+          +------+                 +-------+      `=========='
+
+The routing component receives the incoming request and immediately picks it apart.  The request contains a path (/line_items?product_id=2) and a method (this button does a POST operation; other common methods are GET, PUT, PATCH, and DELETE).  In this simple case, Rails takes the first part of the path, line_items, as the name of the controller and the product_id as the ID of a product.  By convention, POST methods are associated with create() actions.  As a result of all this analysis, the router knows it has to invoke the create() method in the controller class LineItemsController.
+
+The create() method handles user requests.  In this case, it finds the current user's shopping cart (which is an object managed by the model).  It also asks the model to find the information for product 2.  It then tells the shopping cart to add that product to itself.
+
+Object-Relational Mapping is done using Active Record.  This maps objects to rows in the SQL Database.  The classes wrap the tables with methods that perform table-level operations like find, where, save, etc...
+
+Action Pack is the component that handles both the view and controller since both are intimately related.  The view is responsible for creating all or part of a response to be displayed in a browser.  The controller is the logical center of the application.  It coordinates the interaction between the user, the views, and the model.  The controller is also home to a number of important ancillary services:
+
+  * It is responsible for routing external requests to internal actions.  It handles people-friendly URLs extremely well.
+  * It manages caching, which can give applications orders-of-magnitude performance boosts.
+  * It manages helper modules, which extend the capabilities of the view templates without bulking up their code.
+  * It manages sessions, giving users the impression of ongoing interaction with our applications.
+
+Chapter 4 is an introduction to Ruby and goes into what ruby is 
+
+Chapter 5 The Depot Application
+*  This application is developed incrementally.
+
+
+
+Task A: Creating the Application
+
+This is the first Task in the development of a rails application called depot.
+
+Iteration A1: Creating the Products Maintenance Application
+
+We first create the application directory skeleton using the rails new depot command.  This generates the skeleton of the system.  Remember that the file Gemfile needs therubyracer line uncommented.
+
+In Rails a model is automatically mapped to a database table whose name is the plural form of the model's calss.  So for a model called Product, rails will associate a table called products.
+
+A migration represents a change we want to make to the data, expressed in a source file in database-independent terms.  Migrations are applied using the rake db:migrate command.
+
+After the migration we have all of the elements needed to get a rails server up and running so run rails server and go to the application page to view it.
+
+Remember that views are how the pages are rendered in the browser.  They can contain code logic using <% code snipet %> or if you want to display a result <%= code snipet %>.
+
+Tests can be run using the rake test command.  You are encouraged to run this command frequently.
+
+ 
+
+Iteration A2: Making Prettier Listings
+
+Here we downloaded some files and images from the pragprog server to help make the product page look better.  The images server as picutres of what is being sold and the seeds.rb file is the file that
+initially populates the list.  Run rake db:seed to populate the products table with the data.
+
+Stylesheets can be used to help with the display of the pages in the browser.  Stylesheets are preprocessed as Sassy CSS before being served as css files.  What SCSS does is provide additional syntax that makes your stylesheets easier to author and easier to maintain.
+
+Rails keeps a separate file that is used to create a standard page environment for the entire application.  This file, called application.html.erb, is a Rails layout and lives in the layouts directory.
+
+Because Rails loads all of the stylesheets all at once, we need a convention to limit controller-specific rules to pages associated with that controller.  Using the controller_name as a class name is an easy way to accomplish that and is what we have done here.
+
+What was just Done:
+  * We created a development database.
+  * We used a migration to create and modify the schema in our development database.
+  * We created the products table and used the scaffold generator to write an application to maintain it.
+  * We updated an application-wid layout as well as a controller-specific view in order to show a list of products.
+
+Playtime:
+  *  To roll back a migration on a database simply use rake db:rollback.  If done in order to reapply the migration and reseed the database:  rake db:migrate and rake db:seed.
+  *  Create a git repository for depot and for other supplementary materials.
