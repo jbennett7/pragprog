@@ -29,8 +29,8 @@ Rails handles an incoming request as shown in the following figure:
                        +---------+
                    *-> | Routing |
                   /    +---------+
-                 *         |
-                 *        \ /
+                 |         |
+                 |        \ /
   +-----------+ /   +------------+
   |  Browser  | --> | Controller |
   +-----------+     +------------+
@@ -59,10 +59,10 @@ Chapter 5 The Depot Application
 *  This application is developed incrementally.
 
 
-
-Task A: Creating the Application
+Chapter 6. Task A: Creating the Application
 
 This is the first Task in the development of a rails application called depot.
+
 
 Iteration A1: Creating the Products Maintenance Application
 
