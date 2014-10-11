@@ -1,0 +1,319 @@
+#BEGIN http://guides.rubyonrails.org/migrations.html
+3. Writing a Migration
+
+3.1 Creating a Table
+The create_table method is one of the most fundamental, but most of the time, will be generated for you from using a model or scaffold generator.  A typical use would be
+
+  create_table :products do |t|
+    t.string :name
+  end
+
+which creates a products table with a column called name (and as discussed below, an implicit id column).
+
+By default, create_table will create a primary key called id.  You can change the name of the primary key with the :primary_key option (don't forget to update the corresponding model) or, if you don't want a primary key at all, you can pass the option id: false.  If you need to pass database specific options you can place an SQL fragment in the :options option.  For example
+
+  create_table :products, options: "ENGINE=BLACKHOLE" do |t|
+    t.string :name, null: false
+  end
+
+will append ENGINE=BLACKHOLE to the SQL statement used to create the table (when using MySQL, the default is ENGINE=InnoDB).
+
+3.2 Creating a Join Table
+Migration method create_join_table creates a HABTM join table.  A typical use would be:
+
+  create_join_table :products, :categories
+
+which creates a categories_products table with two columns called category_id and product_id.  These columns have the option :null set to false by default.  This can be overriden by specifying the :column_options option.
+
+  create_join_table :products, :categories, column_options: {null: true}
+
+will create the product_id and category_id with the :null option as true.
+
+You can pass the option :table_name when you want to customize the table name.  For example:
+
+  create_join_table :products, :categories, table_name :categorization
+
+will create a categorization table.
+
+create_join_table also accepts a block, which you can use to add indices (which are not created by default) or additional columns:
+
+  create_join_table :products, :categories do |t|
+    t.index :product_id
+    t.index :category_id
+  end
+
+3.3 Changing Tables
+A close cousin of create_table is change_table, used for changing existing tables.  It is used in a similar fashion to create_table but th eobject yielded to the block knows more tricks.  For example:
+
+  change_table :products do |t|
+    t.remove :destination, :name
+    t.string :part_number
+    t.index :part_number
+    t.rename :upccode, :upc_code
+  end
+
+removes the description and name columns, creates a part_number string column and adds an index on it.  Finally it renames the upccode column.
+
+3.4 Changing Columns
+Like the remove_column and add_column Rails provides the change_column migration method.
+
+  change_column :products, :part_number, :text
+
+This changes the column part_number on products table to be a :text field.
+
+Besides change_column, the change_column_null and change_column_default methods are used specifically to change the null and default values of a column.
+
+  change_column_null :products, :name, false
+  change_column_default :products, :approved, false
+
+This sets :name field on products to a NOT NULL column and the default value of the :approved field to false.
+
+3.5 Column Modifiers
+Column modifiers can be applied when creating or changing a column:
+
+  * limit Sets the maximum size of the string/text/binary/integer fields.
+  * precision Defines the precision for the decimal fields, representing the number of digits after the decimal point.
+  * polymorphic Adds a type column for belongs_to associations.
+  * null Allows or disallows NULL values in the column.
+  * default Allows to set a default value on the column.  NOTE: If using a dynamic value (such as date), the default will only be calculated the first time (e.g. on the date the migration is applied.)
+  * index Adds an index for the column.
+
+Some adapters may support additional options; see the adapter specific API docs for further information.
+
+3.6 When Helpers aren't Enough
+If the helpers provided by Active Record aren't engouh you can use the execute method to execute arbitrary SQL:
+
+  product.connection.execute('UPDATE `products` SET `price`=`free` WHERE 1')
+
+3.7 Using the change Method
+The change method is the primary way of writing migrations.  It works for the majority of cases, where Active Record knows how to reverse the migration automatically.  Currently, the change method supports only these migration definitions:
+
+  * add_column
+  * add_index
+  * add_reference
+  * add_timestamps
+  * create_table
+  * create_join_table
+  * drop_table (must supply a block)
+  * drop_join_table (must supply a block)
+  * remove_timestamps
+  * rename_column
+  * rename_index
+  * remove_reference
+  * rename_table
+
+change_table is also reversible, as long as the block does not call change, change_default or remove.
+
+If you're going to need to use any other methods, you should use reversible or write the up and down methods instead of using the change method.
+
+3.8 Using reversible
+Complex migrations may require processing that Active Record doesn't know how to reverse.  You can use reversible to specify what to do when running a migration what else to do when reverting it.  For example:
+
+  class ExampleMigration < ActiveRecord::Migration
+    def change
+      create_table :products do |t|
+        t.references :category
+      end
+
+      reversible do |dir|
+        dir.up do
+          #add a foreign key
+          execute <<-SQL
+            ALTER TABLE products
+              ADD CONSTRAINT fk_products_cateogires
+              FOREIGN KEY (category_id)
+              REFERENCES categories(id)
+          SQL
+        end
+        dir.down do
+          execute <<-SQL
+            ALTER TABLE products
+              DROP FOREIGN KEY fk_products_categories
+          SQL
+        end
+      end
+
+      add_column :users, :home_page_url, :string
+      rename_column :users, :email, :email_address
+    end
+  end
+
+  Using reversible will ensure that the instructions are executed in the right order too.  If the previous example migration is reverted, the down block will be run after the home_page_url column is removed and right before the table products is dropped.
+
+  Sometimes your migration will do something which is just plain irreversible; for example, it might destroy some data.  In such cases, you can raise ActiveRecord::IrreversibleMigration in your down blcok.  If someone tries to revert your migration, an error message will be displayed saying it can't be done.
+
+3.9 Using the up/down Methods
+You can also use the old style of migration using up and down methods instead of the change method.  The up method should describe the transformation you'd like to make to your schema, and the down method of your migration should revert the transformations done by the up method.  In other words, the database schema should be unchanged if you do an up followed by a down.  For example, if you create a table in the up method, you should drop it in the down method.  It is wise to reverse the transformations in precisely the reverse order they were made in the up method.  The example in the reversible section is equivalent to:
+
+  class ExampleMigration < ActiveRecord::Migration
+    def up
+      create_table :products do |t|
+        t.references :category
+      end
+
+      # add a foreign key
+        execute <<-SQL
+          ALTER TABLE products
+            ADD CONSTRAINT fk_products_categories
+            FOREIGN KEY (cateogry_id)
+            REFERENCES categories(id)
+        SQL
+
+      add_column :users, :home_page_url, :string
+      rename_column :users, :email, :email_address
+    end
+
+    def down
+      rename_column :users, :email_address, :email
+      remove_column :users, :home_page_url
+
+      execute <<-SQL
+        ALTER TABLE products
+          DROP FOREIGN KEY fk_products_categories
+      SQL
+
+      drop_table :products
+    end
+  end
+
+If your migration is irreversible, you should raise ActiveRecord::IrreversibleMigration from your down method.  If someone tries to revert your migration, an error message will be displayed saying that it can't be done.
+
+3.10 Reverting Previous Migration
+You can use Active Record's ability to rollback migrations using the revert method:
+
+  require_relative '2012121212_example_migration'
+
+  class FixupExampleMigration < ActiveRecord::Migration
+    def change
+      revert ExampleMigration
+
+      create_table(:apples) do |t|
+        t.string :variety
+      end
+    end
+  end
+
+The revert method also accepts a block of instructions to reverse.  This could be usefull to revert selected parts of previous migraitons.  For example, let's imagine that ExampleMigration is committed and it is later decided it would be best to serialize the product list instead.  One could write:
+
+  class SerializeProductListMigration < ActiveRecord::Migration
+    def change
+      add_column :categories, :product_list
+
+      reversible do |dir|
+        dir.up do
+          # transfer data from Products to Category#product_list
+        end
+        dir.down do
+          # create Products from Category#product_list
+        end
+      end
+
+      revert do
+        # copy-pasted code from ExampleMigration
+        create_table :products do |t|
+          t.references :category
+        end
+
+        reversible do |dir|
+          dir.up do
+            #add a foreign key
+            execute <<-SQL
+              ALTER TABLE products
+                ADD CONSTRAINT fk_products_categories
+                FOREIGN KEY (category_id)
+                REFERENCES categories(id)
+            SQL
+          end
+          dir.down do
+            execute <<-SQL
+              ALTER TABLE products
+                DROP FOREIGN KEY fk_products_categories
+            SQL
+          end
+        end
+
+        # The rest of the migraiton was ok
+      end
+    end
+  end
+
+The same migration could also have been written without using revert but this would have involved a few more steps: reversing the order of create_table and reversible, replacing create_table by drop_table, and finally replacing up by down and vice-versa.  This is all taken care of by revert.
+
+#END http://guides.rubyonrails.org/migrations.html
+
+Chpater 7. Task B: Validation and Unit Testing REVIEW
+Validations are done from within the model classes.  They are done with the validates method which is a standard Rails validator.  It will check one or more model fields against one or more conditions.
+
+  class Product < ActiveRecord::Base
+    validates :title, :description, :image_url, presence: true
+    validates :price, numericality: {greater_than_or_equal_to: 0.01}
+    validates :title, uniqueness: true
+    validates :image_url, allow_blank: true, format: {
+      with:     %r{\.(gif|jpg|png)\Z}i,
+      message:  'must be a URL for GIF, JPG or PNG image.'
+    }
+  end
+
+In rails the test infrastructure is found in the test/ directory.
+
+An example of a generated class for a model:
+
+  require 'test_helper'
+
+  class ProductTest < ActiveSupport::TestCase
+    # test "the truth" do
+    #   assert true
+    # end
+  end
+
+The generated ProductTest is a subclass of ActiveSupport::TestCase.  The fact that ActiveSupport::TestCase is a subclass of the MiniTest::Unit::TestCase class tells us that Rails generates tests based on the MiniTest framework that comes preinstalled with Ruby.
+
+The assert line is the actual test
+
+Creating a real unit test, an example:
+
+  test "product attributes must not be empty" do
+    product = Product.new
+    assert product.invalid?
+    assert product.errors[:title].any?
+    assert product.errors[:description].any?
+    assert product.errors[:price].any?
+    assert product.errors[:image_url].any?
+  end
+
+Running tests is done using
+
+  bin/rake test
+
+or to run tests specific to the models:
+
+  bin/rake test::models
+
+There are various types of assert methods: assert_equal is another.
+
+Test Fixtures
+
+In rails, test fixtures are an environment in which you can run tests on.  Fixtures are found in the test/fixtures directory and are stored in YAML format.
+
+Example:
+
+  one:
+    title: MyString
+    descriptoin: MyText
+    image_url: MyString
+    price: 9.99
+  two:
+    title: MyString
+    description: MyText
+    image_url: MyString
+    price: 9.99
+
+You can control which fixtures to load by specifying the following line in test/models/product_test.rb.  The fixtures() directive loads the fixture data corresponding to the given model name into the corresponding database table before each test method in the test case is run.
+
+Rails maintains three separate databases: a prduction database, a development database, and a test database.  To initialize the test database:
+
+  bin/rake db:test:prepare
+
+Each test method gets a freshly initialized table in the test database, loaded from the fixtures we provide.  This is done automatically using the rake test command.
+
+For each fixture it loads into a test, Rails defines a method with the same name as the fixture.  You can use this method to access preloaded model objects containing the fixture data: simply pass it the name of the row as defined in the YAML fixture file, and it'll return a model object containing that row's data.

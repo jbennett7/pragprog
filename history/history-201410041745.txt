@@ -1,0 +1,171 @@
+ls
+vim README
+vim journal/journal-201409261632.txt 
+cat journal/journal-201409261632.txt 
+vim journal/journal-201409261632.txt 
+cat journal/journal-201409261632.txt 
+vim journal/journal-201409261632.txt 
+cat journal/journal-201409261632.txt 
+Als
+ls
+cd journal
+ls
+cd ..
+ls
+lsvim journal/journal-201409261632.txt 
+vim journal/journal-201409261632.txt 
+cat README 
+vim journal/journal-$(date %Y%m%d%H%M).txt
+ls
+cat history/history.task.A.201409261409 
+cat history/history.task.A.201409261409  | grep date
+cat README 
+vim README 
+ls journal/
+rm -f journal/journal-.txt 
+vim journal/journal-$(date +%Y%m%d%H%M).txt
+awk '{print $0}' journal/journal-201410041328.txt 
+awk '/^#BEGIN /,/^#END .* EOF$/ {print $0}' journal/journal-201410041328.txt 
+awk '/^#BEGIN /,/^#END .* EOF$/' journal/journal-201410041328.txt 
+awk '/^#END .* EOF$/ { print $1 }' journal/journal-201410041328.txt 
+awk '/^#END .* EOF$/ { print $2 }' journal/journal-201410041328.txt 
+awk '/^#END .*/ { print $2 }' journal/journal-201410041328.txt 
+echo "awk '/^#END .* EOF$/ { print $2 }' $1"
+echo "awk '/^#END .* EOF$/ { print $2 }' \$1"
+echo "awk '/^#END .* EOF$/ { print \$2 }' \$1"
+echo "awk '/^#END .* EOF$/ { print \$2 }' \$1" 
+ls
+mkdir scripts
+echo -en \'#\!/bin/bash\nawk \'/^#END .* EOF$/ { print \$2 }\' \$1'
+echo -en '#\!/bin/bash\nawk \'/^#END .* EOF$/ { print \$2 }\' \$1'
+echo -en "#\!/bin/bash\nawk '/^#END .* EOF$/ { print \$2 }' \$1"
+echo -en "#\!/bin/bash\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n#To make this work the format of journal entries that are notes from a web page should follow a format\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n# To make this work the format of journal entries that are notes from a web page should follow a format\n#awk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n# To make this work the format of journal entries that are notes from a web page should follow a format\n# '#BEGIN http://page.com'\n# 'text'\n# #END http://page.com [EOF] - if this is the final entry\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n# To make this work the format of journal entries that are notes from a web page should follow a format\n# '#BEGIN http://page.com'\n# 'text'\n# #END http://page.com [EOF] - if this is the final entry\n#\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n# To make this work the format of journal entries that are notes from a web page should follow a format\n# '#BEGIN http://page.com'\n# 'text'\n# #END http://page.com [EOF] - if this is the final entry\n\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n#\n# To make this work the format of journal entries that are notes from a web page should follow a format\n# '#BEGIN http://page.com'\n# 'text'\n# #END http://page.com [EOF] - if this is the final entry\n\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n"
+echo -en "#\!/bin/bash\n#\n# To make this work the format of journal entries that are notes from a web page should follow a format\n# '#BEGIN http://page.com'\n# 'text'\n# #END http://page.com [EOF] - if this is the final entry\n\nawk '/^#END .* EOF$/ { print \$2 }' \$1\n" > scripts/listfinished.sh
+chmod u+x scripts/listfinished.sh 
+scripts/listfinished.sh journal/journal-201410041328.txt 
+cp scripts/{listfinished.sh,listexermpts.sh}
+vim scripts/listexermpts.sh 
+ll scripts/
+scripts/listexermpts.sh journal/journal-201410041328.txt 
+scripts/listexermpts.sh journal/*
+scripts/listexermpts.sh journal/journal-201410041328.txt 
+ls
+vim README
+rm -rf scripts/
+ls
+ls journal/
+vim journal/
+vim journal/journal-201410041328.txt 
+awk '/^#BEGIN/ {print $0}' journal/*
+awk '/^#END .* EOF$/ {print $0}' journal/*
+awk '/^#END .* EOF$/ {print $2}' journal/*
+awk '/^#END .* EOF$/ {print $2}' journal/* | sed 's@^.*/@@'
+awk '/^#END .* EOF$/ {print $2}' journal/* | sed 's@^.*/@@' 's@html@txt'
+awk '/^#END .* EOF$/ {print $2}' journal/* | sed -e 's@^.*/@@' 's@html@txt'
+awk '/^#END .* EOF$/ {print $2}' journal/* | sed -e 's@^.*/@@' -e 's@html@txt'
+awk '/^#END .* EOF$/ {print $2}' journal/* | sed -e 's@^.*/@@' -e 's@html@txt@'
+awk '/^#BEGIN '$(awk '/^#END .* EOF$/ {print $2}' journal/* | sed -e 's@^.*/@@' -e 's@html@txt@')'/ {print $0}' journal/*
+awk '/^#BEGIN '$(awk '/^#END .* EOF$/ {print $2}' journal/*)'/ {print $0}' journal
+awk '@^#BEGIN '$(awk '/^#END .* EOF$/ {print $2}' journal/*)'/ {print $0}' journal
+awk '@^#BEGIN '$(awk '/^#END .* EOF$/ {print $2}' journal/*)'@ {print $0}' journal
+awk '/^#BEGIN .*active_record_baskics.*/ {print $2}' journal/*
+awk '/^#BEGIN .*active_record_basics.*/ {print $2}' journal/*
+awk '/^#BEGIN .*active_record_basics.*/,/^#END/ {if ($1 !~ '^#') print $2}' journal/*
+awk '/^#BEGIN .*active_record_basics.*/,/^#END/ {if ($1 !~ \'^#\') print $2}' journal/*
+awk '/^#BEGIN .*active_record_basics.*/,/^#END/ {if ($1 !~ "^#") print $2}' journal/*
+awk '/^#BEGIN .*active_record_basics.*/,/^#END/ {if ($1 !~ "^#") print $0}' journal/*
+awk '/^#BEGIN .*active_record_basics.*/,/^#END/ {if ($1 !~ "^#") print $0}' journal/* 
+ls
+mkdir guides
+awk '/^#BEGIN .*active_record_basics.*/,/^#END/ {if ($1 !~ "^#") print $0}' journal/*  > guides/active_record_basics.txt
+vim guides/active_record_basics.txt 
+vim README
+ls
+history
+cd depot/
+echo "Starting Task B"
+vim app/models/product.rb 
+echo "Wait it has been started already?"
+git log
+echo "should have read the logs:  commit e7fca0cea05a4566fde6c09bf84dfe23b6889848"
+vim test/models/product_test.rb 
+vim test/controllers/products_controller_test.rb 
+bin/rake test
+vim test/controllers/products_controller_test.rb 
+vim test/models/product_test.rb 
+bin/rake test:models
+bin/rake test
+vim test/models/product_test.rb 
+bin/rake test:models
+vim test/models/product_test.rb 
+bin/rake test:models
+vim test/models/product_test.rb 
+bin/rake test:models
+vim test/fixtures/products.yml 
+mv ../../products.yml test/fixtures/products.yml 
+cat test/fixtures/products.yml 
+vim test/models/product_test.rb 
+bin/rake test:models
+vim test/models/product_test.rb 
+bin/rake test:models
+vim test/models/product_test.rb 
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+bin/rake test
+vim app/models/product.rb 
+ls
+cd ..
+ls
+vim journal/
+vim journal/journal-201410041328.txt 
+git status
+ls guides/
+git add .
+git status
+vim journal/journal-201410041328.txt 
+git status
+git commit 
+cd depot/
+bin/rake test
+cd ..
+git commit
+git log
+ls
+ls history/
+ls journal/
+ls guides/
+cd history/
+ls
+mv history.task.A.201409261409 history-201409261409.txt
+ls
+cd ..
+vim README 
+cat README 
+history -w history/history-$(date +%Y%m%d%H%M).txt
