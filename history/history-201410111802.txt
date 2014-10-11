@@ -1,0 +1,21 @@
+cat README
+vim journal/journal-$(date +%Y%m%d%H%M).txt
+ll journal/
+vim journal/journal-201410111643.txt 
+grep "EOF" journal/journal-2014*
+awk '/#BEGIN .*migrations/,/#END .*migrations/ {if ($1 !~ /^#/){print $0}}' journal/journal-2014*
+awk '/#BEGIN .*migrations/,/#END .*migrations/ {if ($1 !~ /^#/){print $0}}' journal/journal-2014* | less
+vim journal/journal-201409261632.txt 
+vim journal/journal-201410101943.txt 
+vim journal/journal-201410041328.txt 
+awk '/#BEGIN .*migrations/,/#END .*migrations/ {if ($1 !~ /^#/){print $0}}' journal/journal-2014* | less
+vim journal/journal-201410041328.txt 
+awk '/#BEGIN .*migrations/,/#END .*migrations/ {if ($1 !~ /^#/){print $0}}' journal/journal-2014* > guides/migrations.txt
+ls guides
+git status
+git add .
+git status
+git commit -a -m 'finished the migration guide'
+history | wc -l
+histore -w history/history-$(date +%Y%m%d%H%M).txt
+history -w history/history-$(date +%Y%m%d%H%M).txt
