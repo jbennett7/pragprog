@@ -1,0 +1,35 @@
+ls
+less journal/journal-201410041328.txt 
+grep "#END" journal/journal-201410041328.txt 
+awk '/#BEGIN .+migrations/,/#END .+migrations/ { if ($1 !~ /#.+/){print $0}}' journal/journal-201410041328.txt 
+awk '/#BEGIN .+migrations/,/#END .+migrations/ { if ($1 !~ /#.+/){print $0}}' journal/journal-201410041328.txt  | less
+cat README 
+vim journal/journal-$(date +%Y%m%d%H%M).txt
+grep "#BEGIN" journal/journal-201410041328.txt 
+awk '/^#BEGIN http://guides.rubyonrails.org/migrations.html/,/^#END http://guides.rubyonrails.org/migrations.html/ {print $0}' journal/journal-201410041328.txt 
+awk '/^#BEGIN http:\/\/guides\.rubyonrails\.org\/migrations\.html/,/^#END http:\/\/guides\.rubyonrails\.org\/migrations\.html/ {print $0}' journal/journal-201410041328.txt 
+awk '/^#BEGIN http:\/\/guides\.rubyonrails\.org\/migrations\.html/,/^#END http:\/\/guides\.rubyonrails\.org\/migrations\.html/ {print $0}' journal/journal-* | less
+awk '/^#BEGIN http:\/\/guides\.rubyonrails\.org\/migrations\.html/,/^#END http:\/\/guides\.rubyonrails\.org\/migrations\.html/ {if ($1 !~ /^#/){print $0}}' journal/journal-* | less
+awk '/^#BEGIN .+migration/,/^#END .+migration/ {print $0}' journal/journal-2014*
+awk '/^#BEGIN .+migration/,/^#END .+migration/ {if ($1 !~ /^#/){print $0}}' journal/journal-2014*
+awk '/^#BEGIN .+migration/,/^#END .+migration/ {print $0}' journal/journal-2014*
+awk '/^#BEGIN .+migration/,/^#END .+migration/ {if ($1 !~ /^#/){print $0}}' journal/journal-2014*
+vim journal/journal-201410101943.txt 
+vim journal/journal-201410041328.txt 
+vim journal/journal-201410101943.txt 
+cat README
+heistory
+history | wc -l
+history -w history/history-$(date +%Y%m%d%H%M).txt
+rm -f history/history-201410102101.txt 
+git status
+git commit -a
+git log
+git status
+git add .
+git status
+git commit -a
+git status
+ls journal/
+ls history/
+history -w history/history-$(date +%Y%m%d%H%M).txt
