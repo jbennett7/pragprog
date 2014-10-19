@@ -1,0 +1,30 @@
+cd depot/
+rails generate controller Store index
+vim config/routes.rb 
+vim app/controllers/store_controller.rb 
+vim app/views/store/index.html.erb 
+vim app/assets/stylesheets/store.css.scss 
+vim app/views/layouts/application.html.erb 
+vim app/assets/stylesheets/store.css.scss 
+cp ~/test/store.css.scss app/assets/stylesheets/store.css.scss 
+cp ~/test/index.html.erb app/views/store/index.html.erb 
+cp ~/test/application.html.erb app/views/layouts/application.html.erb 
+vim app/views/layouts/application.html.erb 
+cp ~/test/application.html.erb app/views/layouts/application.html.erb 
+vim app/assets/stylesheets/application.css 
+mv app/assets/stylesheets/application.css{,.scss}
+vim app/assets/stylesheets/application.css.scss 
+vim app/views/store/index.html.erb 
+rake test
+vim test/controllers/store_controller_test.rb 
+rake test
+vim test/controllers/store_controller_test.rb 
+rake test
+vim test/controllers/store_controller_test.rb 
+vim test/fixtures/products.yml 
+vim config/environments/development.rb 
+vim app/models/product.rb 
+vim app/views/store/index.html.erb 
+cd ..
+history
+history -w history/history-$(date +%Y%m$d%H%M).txt
