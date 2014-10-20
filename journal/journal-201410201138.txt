@@ -1,0 +1,27 @@
+Was able to do some of the platime stuff. Most notably Activity 1.  I added the code like so:
+
+app/controllers/store_controller.rb
+
+  @date_time = Time.now
+
+
+app/views/layouts/application.html.erb
+
+  <li><%= @date_time %></li>
+
+The color needed to be adjusted so in the file app/assets/stylesheets/application.css.scss
+
+  #side {
+    ...
+    ul {
+      padding: 0;
+      li {
+->      color: #0f0;
+        ...
+
+Activity 2 exprimenting with number_to_currency helper method for ActionView.  You can change the
+currency type to say pounds, lei, etc... and also the precision.
+
+Activity 3 assert_select I am having difficulty with.
+
+Activity 4 is always git done.

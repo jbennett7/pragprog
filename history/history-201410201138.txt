@@ -1,0 +1,25 @@
+ls
+cd depot/
+vim app/controllers/store_controller.rb 
+vim app/views/store/index.html.erb 
+vim app/views/layouts/application.html.erb 
+vim app/controllers/store_controller.rb 
+vim app/views/layouts/application.html.erb 
+find . | grep scss
+vim app/assets/stylesheets/store.css.scss 
+vim app/assets/stylesheets/application.css.scss 
+vim test/controllers/products_controller_test.rb 
+bin/rake test
+vim test/controllers/products_controller_test.rb 
+bin/rake test
+vim test/controllers/products_controller_test.rb 
+grep -R fixtures test/*
+vim test/test_helper.rb 
+vim test/controllers/products_controller_test.rb 
+bin/rake test
+vim test/fixtures/products.yml 
+ls
+vim test/fixtures/products.yml 
+vim test/controllers/products_controller_test.rb 
+cd ..
+history -w history/history-$(date +%Y%m%d%H%M).txt
