@@ -1,0 +1,98 @@
+#BEGIN http://guides.rubyonrails.org/test.html
+A Guide to Testing Rails Applications
+
+1. Why Write Tests for your Rails Applications?
+Rails makes it super easy to write your tests.  It starts by producing skeleton test code while you are creating your models and controllers.
+
+By simply running your Rails tests you can ensure your code adheres to the desired functionality even after some major code refactoring.
+
+Rails tests can also simulate browser requests and thus you can test your application's response without having to test it through your browser.
+
+2. Introduction to Testing
+Testing support was woven into the Rails fabric from the beginning.  It wasn't an "oh! let's bolt on support for running tests because they're new and cool" epiphany.  Just about every Rails application interacts heavily with a database and, as a result, your tests will need a database to interact with as well.  To write efficient tests, you'll need to understand how to set up this database and populate it with sample data.
+
+2.1. The Test Environment
+By default, every Rails application has three environments: development, test, and production.  The database for each one of them is configured in config/database.yml.
+
+A dedicated test database allows you to set up and interact with test data in isolation.  Tests can mangle test data with confidence, that won't touch the data in the development or production databases.
+
+2.2. Rails Sets up for Testing from the Word Go
+Rails creates a test folder for you as soon as you create a Rails project using rails new application_name.  If you list the contents of this folder then you shall see:
+
+$ ls -F test
+controllers/    helpers/        mailsers/       test_helper.rb
+fixtures/       integration/    models/
+
+The models directory is meant to hold tests for your models, the controllers directory is meant to hold tests for your controllers and the integration directory is meant to hold tests that involve any number of controllers interacting.
+
+Fixtures are a way of organizing test data; they reside in the fixtures folder
+
+The test_helper.rb file holds the default configuration for your tests.
+
+2.3  The Low-Down on Fixtures
+For good tests, you'll need to give some thought to setting up test data.  In Rails, you can handle this by defining and customizing fixtures.
+
+2.3.1. What are Fixtures?
+Fixtures is a fancy word for sample data.  Fixtures allow you to populate your testing database with predefined data before your tests run.  Fixtures are database independent written in YAML.  There is one file per model.
+
+You'll find fixtures under you test/fixtures directory.  When you run rails generate model to create a new model fixture stubs will be automatically created and placed in this directory.
+
+2.3.2. YAML
+YAML-formatted fixtures are a very human-friendly way to describe you sampel data.  These types of fixtures have the .yml file extension (as in users.yml).
+
+Here's a sample YAML fixture file:
+
+# YAML Comment line
+  david:
+    name: David Heinemeier Hansson
+    birthday: 1979-10-15
+    profession: Systems development
+
+  steve:
+    name: Steve Ross Kelock
+    birthday: 1974-09-27
+    profession: guy with keyboard
+
+Each fixture is given a name followed by an indented list of colon-separated key/value pairs.  Records are typically separated by a blank space.  You can place comments in a fixture file by using the # character in the first column.  Keys which resemble YAML keywords such as 'yes' and 'no' are quoted so that the YAML Parser correctly interprets them.
+
+If you are working with associations, you can simply define a reference node between two different fixtures.  Here's an example with a belongs_to/has_many association:
+
+# In fixtures/categories.yml
+  about:
+    name: About
+    
+# In fixtures/articles.yml
+  one:
+    title: Welcome to Rails!
+    obody: Hello world!
+    category: about
+
+2.3.3. ERB'in It Up
+ERB allows you to embed Ruby code within templates.  The YAML fixture format is pre-processed with ERB when Rails loads fixtures.  This allows you to use Ruby to help you generate some sample data.  For example, the following code generates a thousand users:
+
+<% 1000.times do |n| %>
+user_<%= n %>
+  username: <%= "user#{n}" %>
+  email: <%= "user#{n}@example.com" %>
+<% end %>
+
+2.3.4. Fixtures in Aciton
+Rails by default automatically loads all fixtures from the test/fixtures folder for your models and controllers test.  Loading involves three steps:
+
+  * Remove any existing data from the table corresponding to the fixture
+  * Load the fixture data into the table
+  * Dump the fixture data into a variable in case you want to access it directly
+
+2.3.5. Fixtures are Active Record objects
+Fixtures are instances of Active Record.  As mentioned in point #3 above, you can access the object directly because it is automatically setup as a local variable of the test case.  For example:
+
+# this will return the User object for the fixture named david
+  users(:david)
+
+# this will return the property for david called id
+users(:david).id
+
+# one can also access methods available on the User class
+email(david.girlfriend.email, david.location_tonight)
+
+#END http://guides.rubyonrails.org/testing.html
