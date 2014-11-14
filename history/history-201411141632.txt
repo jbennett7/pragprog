@@ -1,0 +1,55 @@
+cd depot/
+rails generate scaffold Cart
+rake db:migrate
+vim app/controllers/concerns/current_cart.rb
+cd ..
+git status
+cd depot
+git status
+cd ..
+git add .
+git commit -m "Finished Iteration D1: Finding a Cart"
+git push
+git pull
+git push
+cd depot/
+rails generate scaffold LineItem product:references cart:belongs_to
+rake db:migrate
+cat app/models/line_item.rb 
+vim app/models/cart.rb 
+vim app/models/product.rb 
+cd ..
+git status
+git add .
+git commit -m 'Iteration D2: Connecting Products to Carts'
+git push
+cd depot/
+vim app/views/store/index.html.erb 
+vim app/assets/stylesheets/store.css.scss 
+vim app/controllers/line_items_controller.rb 
+vim test/controllers/line_items_controller_test.rb 
+rake test test/controllers/line_items_controller_test.rb
+vim +79 app/controllers/line_items_controller.rb 
+vim test/controllers/line_items_controller_test.rb 
+vim +31 app/controllers/line_items_controller.rb 
+rake test test/controllers/line_items_controller_test.rb
+vim test/controllers/line_items_controller_test.rb 
+rake test test/controllers/line_items_controller_test.rb
+vim test/controllers/line_items_controller_test.rb 
+rake test test/controllers/line_items_controller_test.rb
+vim test/controllers/line_items_controller_test.rb 
+vim app/models/line_item.rb 
+vim app/models/cart.rb 
+vim app/models/product.rb 
+vim app/views/store/index.html.erb 
+vim app/controllers/line_items_controller.rb 
+rake test test/controllers/line_items_controller_test.rb
+vim test/controllers/line_items_controller_test.rb 
+vim app/views/carts/show.html.erb 
+cd ..
+git status
+git add .
+git commit -m "Iteration D3: Adding a Button"
+git push
+history
+history -w history/history-$(date +%Y%m%d%H%M).txt
