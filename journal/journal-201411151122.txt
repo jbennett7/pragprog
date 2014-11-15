@@ -1,0 +1,127 @@
+Chapter 9. Task D: Cart Creation
+
+Iteration D1: Finding a Cart
+
+In the first iteration we generate the Cart class
+
+  rails generate scaffold Cart
+
+and a method called set_cart in app/controllers/concerns/current_cart.rb
+
+The set_cart method starts by getting the :cart_id from the session object and then attempts to find a cart corresponding to this ID.  If it does not exist it will attempt to create it.
+
+The method set_cart is marked private.  This allows us to share common code between controllers and furhermore prevents Rails from ever making it available as an action on the controller.
+
+
+Iteration D2: Connecting Products to Carts
+
+Sessions is where we keep our shopping cars.
+
+A cart contains a set of products.  We generate the Rails models with:
+
+  rails generate scaffold LineItem product:references cart:belongs_to
+
+Then perform a database migration:
+
+  bin/rake db:migrate
+
+If you look at the generated definition of the LineItem class, you can see the difinitions of these relationships.
+
+  class LineItem < ActiveRecord::Base
+    belongs_to :product
+    belongs_to :cart
+  end
+
+At the model level, there is no difference between a simple reference and a "belongs to" relationship.  Both are implemented using the belongs_to method.  In the LineItem model, the two belongs_to() calls tell Rails that rows in the line_items table are children of rows in the carts and products tables.  No line item can exist unless the corresponding cart and product rows exist.  There's an easy way to remember where to put belongs_to declarations:  if a table has foreign keys, the corresponding model should have a belongs_to for each.
+
+Just what do these various declarations do?  Basically, they add navigation capabilities to the model objects.  Because Rails added the belongs_to declaration to LineItem,  we can now retrieve its Product and display the book's title.
+
+  li = LineItem.find(...)
+  puts "This line item is for #{li.product.title}"
+
+To be able to traverse these relationships in both directions, we need to add some declarations toour model files that specify their inverse relations.
+
+In app/models/cart.rb
+
+  class Cart < ActiveRecord::Base
+    has_many :line_items, dependent: :destroy
+  end
+
+
+That has_many :line_items part of the directive is fairly self-explanatory: a cart has (potentially) many associated line items.  These are linked to the cart because each line item contains a reference to its cart's ID.  The dependent: :destroy part indicates that the existence of the cart. If we destroy a cart, deleting it from the database, we'll want Rails also to destroy any line items that are associated with that cart.
+
+Now that the Cart is declared to have many line items, we can reference them (as a collection) from a cart object.
+
+  cart = Cart.find(...)
+  puts "This cart has #{cart.line_items.count} line items"
+
+Now, for completeness, we should add a has_many directive to our Product model (app/models/product.rb).  After all, if we have lots of carts, each product might have many line items referencing it.  This time, we will make use of validation code to prevent the removal of products that are referenced by line items.
+
+Here we declare that a product has many line items and define a hook method named ensure_not_referenced_by_any_line_item().  A hook method is a method that Rails calls automatically at a given point in an object's life.  In this case, the method will be called before Rails attempts to destroy a row in the database.  If the hook method returns false, the row will not be destroyed.
+
+Note that we have direct access to the errors object.  This is the same place that the validates() stores error messages.  Errors can be associated with individual attributes, but in this case we associate the error with the base object.
+
+
+Iteration D3: Adding a Button
+
+Now that that's done, it is time to add an [Add to Cart] button for each product.
+
+There is no need to create a new controller or even a new action.  Taking a look at the actions provided by the scaffold generator, you find index(), show(), new(), edit(), create(), update(), and destroy().  The one that matches this operation is create().  (New() may sound similar, but its use is to get a form that is used to solicit input for a subsequent create() action).
+
+Once this decision is made, the rest follows.  What are we creating?  Certainly not a Cart or even a Product.  What we are creating is a LineItem.  Looking at the comment associated with the create() method in app/controllers/line_items_controller.rb, you see that this choice also determines the URL, to use (/line_items) and the HTTP method (POST).
+
+This choice even suggests the proper UI control to use.  When we added links before, we used link_to(), but links default to using HTTP GET.  We want to use POST, so we will add a button this time; this means we will be using the button_to() method.
+
+We could connect the button to the line item by speicfying the URL, but again we can let Rails take care of this for us by simply appending _path to the controller's name.  In this case, we will use line_items_path.
+
+However, there's a problem with this: how will the line_items_path method know which product to add to our cart?  We'll need to pass it the ID of the product corresponding to the button.  That's easy enough - all we need to do is add the :product_id option to the line_items_path() call.  We can even pass in the product instance itself - Rails knows to extract the ID from the record in circumstances such as these.
+
+The line we add is in app/vies/store/index.html.erb:
+
+  <%= button_to 'Add to Cart', line_items_path(product_id: product) %>
+
+There's one more formatting issue, button_to creates an HTML <form>, and that form contains an HTML, <div>.  Both of these are normally block elements, which will appear on the next line.  We'd like to place them next to the price, so we need to add a little CSS magic to make them inline (app/assets/stylesheets/store.css.scss).
+
+
+What We Just Did
+
+* We created a Cart object in one request and were able to successfully locate the same cart in subsequent requests using a session object.
+* We added a private method and placed it in a concern, making it accessible to all of our controllers.
+* We created relationships between carts and line items and relationships between line items and products, and we were able to navigate using these relationships.
+* We added a button that caused a product to be posted to a cart, causing a new line item to be created.
+
+Play Time:
+*  Change the applicatoin so that clicking a book's image will also invoke the create action.  HINT: the first parameter to link_to is placed in the generated <a> tag, and the Rails helper image_tag constructs an HTML <img> tag.  Include a call to it as the first parameter to a link_to call.  Be sure to include :method => :post in your html_options on your call to link_to.
+
+  In app/views/store/index.html.erb, change the 
+  
+    <%=image_tag(product.image_url) %> 
+    
+  line to one of the following from "https://pragprog.com/wikis/wiki/Pt-D-1
+
+    <%= link_to( image_tag(product.image_url),
+                 line_items_path(:product_id => product),
+                 html_options = {:method => :post}) %>
+
+  or
+
+    <%= link_to( image_tag(product.image_url),
+                 line_items_path(:product_id => product),
+                 :method => "create" ) %>
+
+  instead of calling post as in the previous one we call create, or
+
+    <%= link_to image_tag( product.image_url,
+                           { :border => "0",
+                             :title => "Push it into cart!" }),
+                           line_items_path(:product_id => product), {:method => :post} %>
+
+  another way of doing it improves on the previous, but stores the image border style in the stylesheets:
+  
+    <%= image_tag(product.image_url, :class => "image_link")
+
+    And added the following to the CSS file:
+
+      .image_link {
+        border: 0;
+      }

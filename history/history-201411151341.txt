@@ -1,0 +1,25 @@
+cd pragprog/
+ls
+vim journal/journal-$(date +%Y%m%d%%H%M).txt
+cd journal/
+mv journal-20141115%H27.txt journal-201411151122.txt
+vim journal-201411151122.txt 
+cat journal-201411151122.txt 
+cd pra
+cd ../
+ls
+cd depot/
+ls
+vim app/views/store/index.html.erb 
+bin/rake db:migrate
+vim ../journal/journal-201411151122.txt 
+vim app/controllers/store_controller.rb 
+vim app/views/store/index.html.erb 
+vim app/controllers/store_controller.rb 
+vim app/controllers/line_items_controller.rb 
+vim app/views/store/index.html.erb 
+vim app/controllers/line_items_controller.rb 
+vim app/controllers/store_controller.rb 
+history
+cd ..
+history -w history/history-$(date +%Y%m%d%H%M).txt
