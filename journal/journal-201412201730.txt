@@ -1,0 +1,3 @@
+Playtime
+
+Create a migration that copies the product price into the line item, and change the add_product() method in the Cart model to capture the price whenever a new line item is created.

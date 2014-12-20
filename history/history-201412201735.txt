@@ -1,0 +1,41 @@
+ls ../history/history-2014*
+ls
+bin/rails generate migration add_prouct_price_to_line_item price:decimal
+vim db/migrate/20141220214856_add_prouct_price_to_line_item.rb 
+vim app/models/cart.rb 
+vim app/controllers/line_items_controller.rb 
+bin/rake db:migrate
+ls db
+ls db/migrate/
+rm -f db/migrate/20141220214856_add_prouct_price_to_line_item.rb 
+bin/rails generate migration add_product_price_to_line_item price:decimalA
+vim db/migrate/20141220214856_add_product_price_to_line_item.rb 
+vim db/migrate/20141220215540_add_product_price_to_line_item.rb 
+bin/rake db:migrate
+vim db/migrate/20141220215540_add_product_price_to_line_item.rb 
+vim db/migrate/20141220164718_combine_items_in_cart.rb 
+vim db/migrate/20141220215540_add_product_price_to_line_item.rb 
+vim db/migrate/20141220164718_combine_items_in_cart.rb 
+vim db/migrate/20141220163608_add_quantity_to_line_items.rb 
+vim db/migrate/20141220215540_add_product_price_to_line_item.rb 
+vim db/migrate/20141220163608_add_quantity_to_line_items.rb 
+vim db/migrate/20141220215540_add_product_price_to_line_item.rb 
+vim app/models/cart.rb 
+grep -r "product_" app/models/*
+grep -r "price" app/models/*
+vim app/models/cart.rb 
+bin/rake test
+vim app/models/line_item.rb 
+vim app/models/cart.rb 
+vim app/models/line_item.rb 
+vim app/models/cart.rb 
+vim app/models/product.rb 
+vim app/models/cart.rb 
+vim app/controllers/line_items_controller.rb 
+vim test/fixtures/products.yml 
+vim test/fixtures/carts.yml 
+vim test/fixtures/products.yml 
+vim test/fixtures/carts.yml 
+vim test/controllers/products_controller_test.rb 
+vim test/fixtures/carts.yml 
+history -w ../history/history-$(date +%Y%m%d%H%M).txt
