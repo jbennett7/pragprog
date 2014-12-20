@@ -1,0 +1,53 @@
+cd pragprog/
+ls
+cd depot/
+bin/rails generate migration add_quantity_to_line_items quantity:integer
+vim db/migrate/20141220163608_add_quantity_to_line_items.rb 
+rake db:migrate
+vim app/models/cart.rb 
+vim app/controllers/line_items_controller.rb 
+vim app/views/carts/show.html.erb 
+bin/rails generate migration combine_items_in_cart
+vim db/migrate/20141220164718_combine_items_in_cart.rb 
+bin/rake db:migrate
+vim db/migrate/20141220164718_combine_items_in_cart.rb 
+bin/rake db:migrate:status
+bin/rake db:rollback
+bin/rake db:migrate:status
+bin:rake db:migrate
+bin/rake db:migrate
+bin/rake db:rollback
+mv db/migrate/20141220164718_combine_items_in_cart.rb ..
+mv db/migrate/20141220163608_add_quantity_to_line_items.rb ..
+mv ../20141220163608_add_quantity_to_line_items.rb db/migrate/
+bin/rake db:migrate:status
+bin/rake db:migrate:rollback
+bin/rake db:rollback
+mv db/migrate/20141220163608_add_quantity_to_line_items.rb ..
+vim app/views/carts/show.html.erb 
+vm ../20141220163608_add_quantity_to_line_items.rb db/migrate/
+mv ../20141220163608_add_quantity_to_line_items.rb db/migrate/
+bin/rake db:migrate
+bin/rake db:status
+bin/rake db:migrate:status
+grep -r "quantity" app/*
+vim app/models/cart.rb 
+vm ../20141220164718_combine_items_in_cart.rb db/migrate/
+mv ../20141220164718_combine_items_in_cart.rb db/migrate/
+bin/rake db:migrate
+bin/rake db:migrate:status
+bin/rake db:rollback
+bin/rake db:migrate:status
+vim db/migrate/20141220163608_add_quantity_to_line_items.rb 
+vim app/models/cart.rb 
+bin/rake db:migrate:status
+bin/rake db:migrate
+bin/rake db:migrate:status
+bin/rake db:rollback
+mv db/migrate/20141220164718_combine_items_in_cart.rb ..
+bin/rake db:migrate:status
+mv ../20141220164718_combine_items_in_cart.rb db/migrate/
+bin/rake db:migrate
+history
+cd ..
+history -w history/history-$(date +%Y%m%d%H%M).txt

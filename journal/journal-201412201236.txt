@@ -1,0 +1,37 @@
+Chapter 10. Task E: A Smarter Cart
+
+10.1 Iteration E1: Creating a Smarter Cart
+
+When we created the cat orgianlly in Task 9 we did so by adding the items to the cart as the person presses the 'Add to Cart' button.  We now want to change this to where the items are tracked by name and quantity.
+
+Associtating a count with each product in our car is going to require us to modify the line_items table.
+
+depot> rails generate migration add_quantity_to_line_items quantity:integer
+
+Rails can tell from the name of hte migration tha tyou are adding one or more columns to the line_items table and can pick up the names and data types for each column from the last argument.
+
+The two patterns that Rails matches on are add_XXX_to_TABLE and remove_XXX_from_TABLE, where the value of XXX is ignored; what matters is the list of column names and types that appear after the migration name.
+
+Now that this part is done when the person presses the 'Add to Cart' button what we are likely to see is a mixture of individual products listed separately and a single product listed with a quantity of two.  This is because we added a quantity of one to existing columns instead of collapsing multiple rows when possible.  What we need to do next is migrate the existing data in the database.
+
+depot> rails generate migration combine_items_in_cart
+
+This time, Rails can't infer what we are trying to do, so we can't rely on the generated change() method.  What we need to do instead is to replace this method with separate up() and down() methods.
+
+*  We start by iterating over each cart.
+*  For each cart, we get a suj of the quantity fields for each of the line items associated with this cart, grouped by product_id.  The resulting sums will be a list of ordered pairs of product_ids and quantity.
+*  We iterate over these sums, extracting the product_id and quantity from each.
+*  Incases where the quantity is greater than one, we will delete all of the individual line items associated with this cart and this product and replace them with a single line item with the correct quantity.
+
+The down() method is also implemented.  This method finds line items with a quantity of grater than one; adds a new line item for this cart and product, each with a quantity of one; and finally deletes the line item.
+
+To use the down() method:
+
+depot> rake db:rollback
+
+
+The command:
+
+depot> rake db:migrate:status
+
+will show what migrations have been currently applied.
