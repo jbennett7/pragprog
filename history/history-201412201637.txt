@@ -1,0 +1,22 @@
+mv ../journal/journal-201412201537.txt ../history/history-201412201537.txt
+vim app/views/carts/show.html.erb 
+vim app/controllers/carts_controller.rb 
+vim test/controllers/carts_controller_test.rb 
+bin/rake log:clear LOGS=test
+bin/rake test:controllers
+vim app/controllers/carts_controller.rb 
+bin/rake test:clean
+bin/rake test clean
+rake test
+vim app/views/carts/show.html.erb 
+rake test
+vim test/controllers/carts_controller_test.rb 
+vim app/controllers/carts_controller.rb 
+vim test/controllers/carts_controller_test.rb 
+vim app/controllers/line_items_controller.rb 
+vim app/views/carts/show.html.erb 
+vim app/models/line_item.rb 
+vim app/models/cart.rb 
+vim app/assets/stylesheets/carts.css.scss 
+history
+history -w ../history/history-$(date +%Y%m%d%H%M).txt

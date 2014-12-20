@@ -1,0 +1,33 @@
+Chapter 10: Task E: A Smarter Cart
+10.2 Iteration E2: Handling Errors
+
+Rails' logging facility
+See also guide:  http://guides.rubyonrails.org/debugging_rails_applications.html#the-logger
+
+Rails has a convenient way of dealing with errors and error reporting.  It defines a structure called a flash.  A flash is a bucket (or a hash) in which you can store stuff as you process a request.  The contents of the flash are available to the next request in this session before being deleted automatically.  Typically a flash is used to collect error messages.  For example, when our show() method detects that it was passed an invalid cart ID, it can store that error message in the flash area and redirect it to the index() action to redisplay the catalog.
+
+We implement this in the app/controllers/carts_controller.rb file.
+
+The rescue_from clause intercepts the exception raised by Cart.find() and execute the handler invalid_cart.  In the handler, we do the following:
+  * Use the Rails logger to record the error.  Every controller has a logger attribute.  Here we use it to record a message at the error logging level.
+  * Redirect to the catalog display using the redirect_to() method.  The :notice parameter specifies a message to be stored in the flash as a notice.  Why redirect rather than just display the catalog here?  If we redirect, the user's browser will end up dislpaying the store URL, rather than http://.../cart/wibble.  We expose less of the application this way.  We also prevent the user from retriggering the error by hitting the Reload button.
+
+Now when you try to access a cart say http://.../carts/wibble.  You will now longer see an error message but instead the catalog page is displayed with a message 'invalid cart'
+In the logging you will see a line 'Attempt to access invalid cart wibble' which is what is displayed by our handler invalid_cart.
+
+Invalid carts are not our biggest problems, malicious crackers still have the ability to get underneath the HTML we provide and attempt to provide additional parameters to view other people's carts.  Our controllers are the first line of defense and thus, we will remove the cart_id from the list of parameters that are permitted from app/controllers/line_items_controller.rb, from the line_item_params method.  This method acts as a white list, allowing only the stated parameters from the internet.  Now test with
+
+depot> bin/rake test:controllers
+
+While no tests fail, a quick peek into our log/test.log reveals an attempt to breach security that was thwarted:
+
+depot> grep "Unpermitted parameters" log/test.log
+
+Cleaning up that test case will make the problem go away, this is done in the "should update line_item" test in test/controllers/line_items_controller_test.rb
+
+At this point we can clear the test logs and rerun the tests.
+
+depot> bin/rake log:clear LOGS=test
+depot> bin/rake test:controllers
+
+A final scan of the logs identifies no further problems.

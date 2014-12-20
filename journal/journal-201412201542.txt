@@ -1,0 +1,48 @@
+Chapter 10: Task E: A Smarter Cart
+10.3 Iteration E3: Finishing the Cart
+
+Routes: using product_path vs. product_url
+  It can seem hard in the beginning to know when to use product_path and when to use
+  product_url when you want to link or redirect to a given route.  In reality, it's
+  really quite simple.
+
+  When you use product_url, you'll get the full enchilada with protocol and domain name,
+  like http://example.com/products/1.  That's the thing to use when you're doing redirect_to
+  because the HTTP spec requires a fully qualified URL when doing 302 Redirect and friends.
+  You also need the full URL if you;re redirecting from one domain to another, like
+  product_url(domain: "example2.com", product: product).
+
+  The rest of the time, you can happily use product_path.  This will generate only the /products/1
+  part, and that's all you need when doing links or pointing forms, like link_to 
+  "My lovely product", product: product).
+
+  The confusing part is that often the two are interchangeable because of lenient browsers.  You
+  can do a redirect_to with a product_path and it'll probably work, but it won't be valid
+  according to spec.  And you can link_to a product_url, but then you're littering up your
+  HTML with needless characters, which is a bad idea too.
+
+To implement the "empty cart" method, we have to add a link to the cart and modify the destroy() method in the carts controller to clean up the session.
+
+Let's start with the template and again use the button_to() method to put a button on the page in app/views/carts/show.html.erb.
+
+In the controller, we'll modify the destroy() method to ensure that the user is deleting their own cart and to remove the cart from the session before redirecting to the index page with a notification message.
+
+Also update the corresponding test in test/controllers/carts_controller_test.rb.
+
+We can also remove the flash message that is automatically generated when a line item is added. In the create method for app/controllers/line_items_controller.rb.
+
+Finally, we'll get around to tidying up the cart display.  Rather than use <li> elements for each item, let's use a table.  Again, we'll rely on CSS to do the styling.  Changes are done in app/views/carts/show.html.erb.
+
+To make this work, we need to add a method to both the LineItem and Cart models that returns the total price for the individual line item and entire cart, respectively.  In app/models/line_item.rb.
+
+We implement the Cart method using Rails' nifty Array::sum() method to sum the prices of each item in the collection.  In app/modes/cart.rb.
+
+What We Just Did
+Our shopping cart is now something the client is happy with.  Along the way, we covered the following:
+  * Adding a column to an existing table, with a default value
+  * Migrating existing data into the new table format
+  * Providing a flash notice of an error that was detected
+  * Using the logger to log events
+  * Removing a parameter from the permitted list
+  * Deleting a record
+  * Adjusting the way a table is rendered, using CSS

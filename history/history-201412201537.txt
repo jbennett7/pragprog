@@ -1,0 +1,23 @@
+cd depot
+ls
+vim app/controllers/carts_controller.rb 
+bin/rake db:migrate
+bin/rake db:migrate:status
+bin/rake db:migrate:down
+bin/rake db:migrate:down 20141220164718
+bin/rake db:rollback
+bin/rake db:migrate
+vim app/controllers/carts_controller.rb 
+tail log/development.log 
+cat log/development.log 
+vim app/controllers/line_items_controller.rb 
+bin/rake test:controllers
+bin/rake test
+bin/rake test:controllers
+cat log/test.log 
+cat log/test.log  | grep "Unpermitted"
+vim test/controllers/line_items_controller_test.rb 
+bin/rake log:clear LOGS=test
+bin/rake test:controllers
+history
+history -w ../journal/journal-$(date +%Y%m%d%H%M).txt
