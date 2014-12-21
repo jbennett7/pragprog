@@ -1,6 +1,13 @@
 require 'test_helper'
 
 class ProductTest < ActiveSupport::TestCase
+  def new_product(image_url)
+    Product.new(title:        "My Book Title",
+                description:  "yyy",
+                price:        1,
+                image_url:    image_url)
+  end
+
   test "product attributes must not be empty" do
     product = Product.new
     assert product.invalid?
@@ -28,12 +35,6 @@ class ProductTest < ActiveSupport::TestCase
     assert product.valid?
   end
 
-  def new_product(image_url)
-    Product.new(title:        "My Book Title",
-                description:  "yyy",
-                price:        1,
-                image_url:    image_url)
-  end
   test "image url" do
     ok = %w{ fred.gif fred.jpg fred.png FRED.JPG FRED.Jpg
              http://a.b.c/x/y/z/fred.gif }
@@ -65,5 +66,15 @@ class ProductTest < ActiveSupport::TestCase
     assert product.invalid?
     assert_equal [I18n.translate('errors.messages.taken')],
                   product.errors[:title]
+  end
+
+  test "product is not valid without a unique image url" do
+    product = Product.new(title:       "Title",
+                          description: "yyy",
+                          price:       1,
+                          image_url:   products(:one).image_url
+                         )
+    assert !product.save
+    assert_match "has already been taken", product.errors[:image_url].join('; ')
   end
 end

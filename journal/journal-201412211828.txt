@@ -1,0 +1,5 @@
+Chapter 10: Task E: A Smarter Cart
+
+Check products and line items for other places where a user-friendly error message would be in order.
+
+Add the ability to delete individual line items from the cart.  This will require buttons on each line, and such buttons will need to be linked to the destroy() action in the LineItemsController.
