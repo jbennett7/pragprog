@@ -1,0 +1,5 @@
+Chapter 10: Task E: A Smarter Cart
+Playtime
+
+Add unit tests that add unique products and duplicate products.  Note that you will need to modify the fixture to refer to products and carts by name, for example product: ruby.
+

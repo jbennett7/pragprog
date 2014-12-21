@@ -1,0 +1,43 @@
+cd test/fixtures/
+ls
+vim line_items.yml 
+vim products.yml 
+vim carts.yml 
+cd ../..
+vim test/controllers/carts_controller_test.rb 
+vim test/models/cart_test.rb 
+ls
+vim app/models/cart.rb 
+vim app/models/line_item.rb 
+vim app/models/product.rb 
+vim app/models/line_item.rb 
+vim app/controllers/carts_controller.rb 
+vim app/controllers/line_items_controller.rb 
+vim app/controllers/products_controller.rb 
+vim test/fixtures/carts.yml 
+vim app/models/cart.rb 
+vim test/fixtures/products.yml 
+vim app/views/carts/show.html.erb 
+vim app/views/store/index.html.erb 
+grep -r line_items_path app/*
+vim app/views/store/index.html.erb 
+vim test/models/cart_test.rb 
+vim app/views/store/index.html.erb 
+vim app/models/line_item.rb 
+vim app/views/line_items/index.html.erb 
+vim app/models/line_item.rb 
+vim app/controllers/line_items_controller.rb 
+vim app/views/store/index.html.erb 
+vim app/controllers/carts_controller.rb 
+vim app/views/store/index.html.erb 
+vim app/controllers/carts_controller.rb 
+vim app/models/cart.rb 
+vim app/models/line_item.rb 
+vim app/controllers/line_items_controller.rb 
+vim app/controllers/carts_controller.rb 
+vim app/models/cart.rb 
+vim test/models/cart_test.rb 
+bin/rake test:models
+vim test/models/cart_test.rb 
+history
+history -w ../history/history-$(date +%Y%m%d%H%M).txt
