@@ -1,0 +1,54 @@
+Chapter 11: Task F: Add a Dash of Ajax
+
+What is Ajax?
+
+Ajax is a method of allowing JavaScript to update the browser by interacting with the server behind the scenes.
+
+First let's put the shopping cart on the same page so that the user can update the cart while still shopping for things.
+
+Iteration F1: Moving the Cart
+The cart is rendered using the show action in the CartController and corresponding .html.erb template.
+
+
+Partial Templates.
+
+You can think of a partial templates (partials for short) as a kind of method for views.  A partial is simply a chunk of a view in its own separate file.
+
+The cart display in app/views/carts/show.html.erb creates a list of table rows, one for each item in the cart.  Whenever you find yourself iterating like this, you might want to stop and ask yourself, is this too much logic in a template?  It turns out we can abstract away the loop using partials (and, as we'll see, this also sets the stage for some Ajax magic later).  To do this, we'll make use of the fact that you can pass acollection to the method that renders partial templates, and that method will automatically invoke the partial once for each item in the collection.  So rewrite the cart view in app/views/carts/show.html.erb.
+
+The render() method will iterate over any collection that is passed to it.
+
+The partial template itself is simply another template file (by default in the same directory as the object being rendered and with the name of the table as the name).  However, to keep the names of partials distinct from regular templates, Rails automatically prepends an underscore to the partial name when looking for the file.  This means we need to name our partial _line_item.html.erb and place it in the app/views/line_items directory.
+
+Inside the partial template, we refer to the current object using the variable name that matches the name of the template.  In this case, the partial is named line_item, so inside the partial we expect to have a variable called line_item.
+
+If we had a partial templae that could display the cart, we could simply embed a call like this within the sidebar:
+
+  render("cart")
+
+But how would the partial know where to find the cart object?  One way would be for it to make an assumption.  In the layout, we have access to the @cart instance variable that was set by the controller.  It turns out that this is also available inside partials called from the layout.  However, this is a bit like calling a method and passing it some value in a global variable.  It works, but it's ugly coding, andit increases coupling (which in turn makes your programs brittle and hard to maintain).
+
+Now that we have a partial for a line item, let's do the same for the cart.  First we'll create the _cart.html.erb template.  This is basically our carts/show.html.erb template but using cart instead of @cart, and without the notice.  (Note that it's okay for a partial to invoke other partials).  Create the file app/views/carts/_cart.html.erb.
+
+As the Rails mantra goes, don't repeat yourself.  But we have just done that.  At the moment the two files are in sync, so there may not seem to be much of a problem, but having one set of logic for the Ajax calls and another set of logic to handle the case where JavaScript is disabled invites problems.  Let's avoid all of that and replace the original template with code that causes the partial to be rendered.  And then change the application layout to include this new partial in the sidebar.
+
+Next we have to make a small change to the store controller app/controllers/store_controller.rb.  We're invoking the layout while looking at the store's index action, and that action doesn't currently set @cart.  That's easy enough to remedy.
+
+Finally, we modify the styl instructions - which currently apply only to the output produced by the CartController - to also apply to the table when it appears in the sidebar.  Again, SCSS enables us to make this change in one place because it will take care of all of the nested definitions (app/assets/stylesheets/carts.css.scss).
+
+While the data for the cart is common no matter where it is plaed in the output, there is no requirement that the presentation needs to be identical independent of where this content is placed.  In fact, black lettering on a green background is rather hard to read, so let's provide additional rules for this table when it appears in the sidebar (app/assets/stylesheets/application.css.scss).
+
+If you display the catalog after adding something to your cart, you should see something like the following figure.  Let's just wait for the Webby Award nomination.
+
+
+Changing the Flow
+Now that we're displaying hte cart in the sidebar, we can change the way that the 'Add to Cart' button works.  Rather than displaying a separate cart page, all it has to do is refresh the main index page.
+
+The change is pretty simple.  At the end of the create action, we simply redirect the browser back to the index.  In app/controllers/line_items_controller.rb.
+
+So, now we have a store with a cart in the sidebar.  When we click to add an item to the cart, the page is redisplayed with an updated cart.  However, if our catalog is large, that redisplay might take a while.  It uses bandwidth, and it uses server resources.  Fortunately, we can use Ajax to make this better.
+
+
+BUG:  The cart seems to add the prices to all items in the cart. Need to fix bug.  The problem was in app/views/line_items/_line_item.html.erb:  The item price was using @cart.total_price instead of line_item.total_price.  BUG FIXED.
+
+BUG: Fix the problem of when an item is deleted it redirects to the cart page.  That page should no longer be needed.  This was a relic in the destroy method of the LineItemsController class in app/controllers/line_item_controller.rb.

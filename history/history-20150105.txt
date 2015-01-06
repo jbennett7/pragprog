@@ -1,0 +1,36 @@
+history --help
+ls
+less journal/journal-201412211828.txt 
+ls depot/
+ls depot/lib
+ls depot/log
+ls depot/db/
+ls depot/db/migrate/
+vim depot/app/controllers/line_items_controller.rb 
+cd depot/
+vim db/migrate/20141220163608_add_quantity_to_line_items.rb 
+bin/rake db:migrate:status
+less ../journal/journal-201412211209.txt 
+ls
+vim app/views/carts/show.html.erb 
+vim app/views/line_items/_line_item.html.erb 
+vim app/views/carts/_cart.html.erb
+vim app/views/carts/show.html.erb 
+vim app/views/layouts/application.html.erb 
+vim app/controllers/store_controller.rb 
+vim app/assets/stylesheets/carts.css.scss 
+vim app/assets/stylesheets/application.css.scss 
+vim app/views/line_items/_line_item.html.erb 
+vim app/controllers/line_items_controller.rb 
+vim app/controllers/carts_controller.rb 
+vim app/controllers/line_items_controller.rb 
+grep -r "def add_product app/*
+grep -r "def add_product" app/*
+vim app/models/cart.rb 
+vim app/controllers/carts_controller.rb 
+vim app/views/carts/_cart.html.erb 
+vim app/views/line_items/_line_item.html.erb 
+vim app/controllers/line_items_controller.rb 
+history
+cd ..
+history -w history/history-$(date +%Y%m%d).txt
