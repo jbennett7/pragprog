@@ -1,0 +1,19 @@
+vim app/views/store/index.html.erb 
+vim app/controllers/line_items_controller.rb 
+vim app/views/line_items/create.js.erb 
+bin/rake test
+vim test/controllers/carts_controller_test.rb 
+bin/rake test
+vim test/controllers/carts_controller_test.rb 
+vim Gemfile
+bundle install
+vim app/assets/javascripts/application.js 
+vim app/controllers/line_items_controller.rb 
+vim app/views/line_items/_line_item.html.erb 
+vim app/views/line_items/create.js.erb 
+history
+vim app/views/layouts/application.html.erb 
+vim app/helpers/application_helper.rb 
+vim app/controllers/carts_controller.rb 
+history
+history -w ../history/history-$(date +%Y%m%d).txt

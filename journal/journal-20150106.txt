@@ -1,0 +1,119 @@
+Chapter 11. Task F: Add a Dash of Ajax
+Iteration F2: Creating an Ajax-Based Cart
+
+Ajax lets us write code that runs in the browser that interacts with our server-based application.  In our case, we'd like to make the 'Add to Cart' buttons invoke the server create action on the LineItems controller in the background.  The server can then send down just the HTML for the cart, and we can replace the cart in the sidebar with the server's updates.
+
+Now, normally we'd do this by writing JavaScript that runs in the browser and by writing server-side code that communicated with this JavaScript (possibly using a technology such as JavaScript Object Notation [JSON]).  The good news is that, with Rails, all this is hidden from us.  We can do everything we need to do using Ruby (and with a whole log of support from some Rails helper methods).
+
+The trick when adding Ajax to an application is to take small steps.  So, let's start with the most basic one.  Let's change the catalog page to send an Ajax request to our server application and have the application respond with the HTML fragment containing the updated cart.
+
+On the index page (app/views/store/index.html.erb), we're using button_to() to create the link to the create action.  We want to change this to send an Ajax request instead.  To do this, we simply add a remote: true parameter to the call.
+
+So far, we've arranged for the browser to send an Ajax request to our application.  The next step is to have the application return a response.  The plan is to create the updated HTML fragment that represents the cart and to have the browser stick that HTML into the browser's internal representation of the structure and content of the document being displayed, namely, the Document Object Model (DOM).  By manipulating the DOM, we cause the display to change in front of the user's eyes.
+
+The first change is to stop the create action from redirecting to the index display if the request is for JavaScript .  We do this by adding a call to respond_to() telling it that we want to respond with a format of .js.
+
+This syntax may seem surprising at first, but it is simply a method call that is passing an optional blcok as an argument.  Blocks are described in Blocks and Iterators, on page 44.  We will cover the respond_to() method in greater detail in Selectin a Dta Representation, on page 318.
+
+Because of this change, when create finishes handling the Ajax request, Rails will look for a create template to render.
+
+Rails supports templates that generate JavaScript - the JS stands for JavaScript.  A .js.erb template is a way of getting JavaScript on the browser to do what you want, all by writing server-side Ruby code.  Let's write our first: create.js.erb.  It goes in the app/views/line_items directory, just like any other view for line items.
+
+This simple template tells the browser to replace the content of the element whose id="cart" with that HTML.
+
+Let's analyze how it manages to do that.
+
+For simplicity and conciseness, the jQuery library is aliased to $, and most usages of jQuery start there.
+
+The first call - $('#cart') - tells jQuery to find the HTML element that has an id of cart.  The html() method is then called with a first argument of the desired replacement for the contents of this element.  This content is formed by calling the render() method on the @cart object.  The output of this method is processed by a escape_javascript() helper method that converts this Ruby string into a format acceptable as input to JavaScript.
+
+Note that this script is executed in the browser.  The only parts executed on the server are the portions within the <%= and %> delimiters.
+
+Does it work?  Well, it's hard to show in a book, but it sure does.  Make sure you reload the index page to get the remote version of the form and the JavaScript libraries loaded into your browser.  Then, click one of the 'Add to Cart' buttons.  You should see the cart in the sidebar update.  And you shouldn't see your browser show any indication of reloading the page.  You've just created an Ajax application.
+
+
+Troubleshooting
+Although Rails makes Ajax incredibly simple, it can't make it foolproof.  And, because you're dealing with the loose integration of a number of technologies, it can be hard to work out why your Ajax doesn't work.  That's one of the reasons you should always add Ajax functionality one step at a time.
+
+Here are a few hints if your Depot application didn't show any Ajax magic:
+  * Does your browser have any special incntation to force it to reload everything on a page?  Sometimes rowsers hold local cached versions of page assets, and this can mess up testing.  Now would be a good time to do a full reload.
+  * Did you have any errors reported?  Look in development.log in the logs directory.  Also look in the Rails server window because some errors are reported there.
+  * Still looking at the log file, do you see incoming requests to the action create?  If not, it means your browser isn't making Ajax requests.  If the JavaScript livraries have been loaded (using View Source in your browser will show you the HTML), perhaps your browser has JavaScript execution disabled?
+  * Some readers have reported that they had to stop and start their application to get the Ajax-based cart to work.
+  * If you're using Internet Explorer, it might be running in what Microsoft calls quriks mode, which is backward compatible with old Internet Explorer releases but is also broken.  Internet Explorer switches into standards mode, which works btter with the Ajax stuff, if the first line of the downloaded page is an appropriate DOCTYPE header.  Our layouts use this:
+  
+    <!DOCTYPE html>
+
+
+
+11.3 Iteration F3: Highlighting Changes
+A number of JavaScript libraries are included with Rails.  One of those libraries, jQuery UI, lets you decorate your web pages with a number of visually interesting effects.  One of these effects is the (now) infamous Yellow Fade Technique.  This highlights an element in a browser: by default it flashes the background yelow and then gradually fades it back to white.  We can see the Yellow Fade Technique being applied to our cart in the follwoing figure; the image at the back shows the original cart.  The user clicks the 'Add to Cart' button, and the count updates to two as the line flares brighter.  It then fades back to the background color over a short period of time.
+
+Installing the jQuery UI library is simple enough.  First add one line to your Gemfile.
+
+Install the gem by running the bundle install command.
+
+After this command completes, restart your server.
+
+Now that we have the jQuery-UI library available to our application, we need to pull in the effect that we want to use.  We do that by adding one line to app/assets/javascripts/application.js
+
+We saw assets/stylesheets/application.css in Iteration A2.  This file behaves similarly but for JavaScripts instead of stylesheets.  Be careful to use a dash instead of an underscore in this line, as clearly not all authors of libraries follow the same naming conventions.
+
+Let's use this library to add this kind of highlight to our cart.  Whenever an item in the cart is updated (either when it is added or when we change the quantity), let's flash its background.  That will make it clearer to our users that something has changed, even though the whole page hasn't been refreshed.
+
+The first problem we have is identifying the most recently updated item in the cart.  Right now, each item is simply a <tr> element.  We need to find a way to flag the most recently changed one.  The work starts in the LineItemsController.  Let's pass the current line item down to the template by assigning it to an instance variable.
+
+In the _line_item.html.erb partial, we then check to see whether the item we're rendering is the one that just changed.  If so, we tag it with an ID of current_item.
+
+As a result of these two minor changes, the <tr> element of the most recently changed item in the cart will be tagged with id="current_item".  Now we just need to tell the JavaScript to change the background color to one that will catch the eye and then to gradually change it back.  We do this in the existing create.js.erb template.
+
+See how we identified the browser element that we wanted to apply the effect to by passing '#current_item' to the $ function? We then called css() to set the initial background color and followed up with a call to the animate() method to transition back to the original color used by our layout over a period of 1000 milliseconds, more commonly known as one second.
+
+With that change in place, click any 'Add to Cart' button, and you'll see that the cnaged item in the cart glows a light green before fading back to merge with the background.  You may have to restart the server for it to work correctly.
+
+
+11.4 Iteration F4: Hiding an Empty Cart
+There's one last request from the customer.  Right now, even carts with nothing in them are still displayed in the sidebar.  Can we arrainge for the cart to appear only when it has some content?  But of course!
+
+In fact, we have a number of options. The simplest is probably to include the HTML for hte cart only if the cart has something in it.  We could do this totally within the _cart partial.  (see page 149 for the example)
+
+Although this works, the user interface is somewhat brutal: the whole sidebar redraws on the transition between a cart tha't empty and a cart with something in it.  So, let's not use this code.  Instead, let's smooth it out a little.
+
+The jQuery UI library also provides transitions that make elements apear.  Let's use the blind option on show(), which will smoothly reveal the cart, sliding the rest of the sidebar down to make room.
+
+Not surprisingly, we'll again use our existing .js.erb template to call the effect.  Because the create template is invoked only when we add something to the cart, we know that we have to reveal the cart in the sidebar whenever there is exactly one item in the cart (because that means previously the cart was empty and hence hidden).  And, because the cart should be visible before we start the highlight effect, we'll add the code to reveal the cart before the code that triggers the highlight.
+
+The template now looks like this app/vies/line_items/create.js.erb
+
+We also have to arrange to hide the cart when it's empty.  There are two basic ways of doing this.  One, illustrated by the code at the start of this section, is not to generate any HTML at all.  Unfortunately, if we do that, then when we add something to the cart and suddenly create the cart HTML, we see a flicker in the browser as the cart is first displayed and then hidden and slowly revealed by the blind effect.
+
+A better way to handle the problem is to create the cart HTML but set the CSS style to display: none if the cart is empty.  To do that, we need to change the application.html.erb layout in app/views/layouts.  Our first attempt is something like this:  (see page 150)
+
+This coed adds the CSS style= attribute to the <div> tag, but only if hte cart is empty.  It works fine, but it's really, really ugly.  Thant dangling > character looks misplaced (even though it isn't), and the way logic is interjected into the middle of a tag is the kind of thing that gives templating languages a bad name.  Let's not let that kind of ugliness litter our code.  Instead, let's create an abstraction that hides it - we'll write a helper method.
+
+
+Helper Methods
+Whenever we want to abstract some processing out of  aview (any kind of view), we should write a helper method.
+
+If you look in the app directory, you'll find six subdirectories.
+
+  depot> ls -p app
+
+Not suprisingly, our helper methods go in the helpers directory.  If you look in that directory, you'll find it already contains some files.
+
+The Rails generators automatically created a helper file for each of our controllers (products and store).  The Rails command itself (the one that created the application initially) created the file application_helper.rb.  If you like, you can organize your methods into controller-specific helpers, but because this method will be used in the application layout, let's put it in the application helper.
+
+Let's write a helper method called hidden_div_if().  It takes a condition, an optional set of attributes, and a block.  It wraps the output generated by the block in a <div> tag, adding the display: none sytle if the condition is true.  Use it in the store layout like this app/vies/layouts/application.html.erb.
+
+We'll write our helper so that it is visible to the store controller by adding it to application_helper.rb in the app/helpers directory.
+
+This code uses the Rails standard helper, content_tag(), which can be used to wrap the output created by a block in a tag.  By using the &block notation, we get Ruby to pass the block that was given to hidden_dif_if() down to content_tag().
+
+And, finally, we need to stop setting the message in the flash that we used to display when the user empties a cart.  It really isn't needed anymore, because the cart clearly disappears from the sidebar when the catalog index page is redrawn.  But ther's anothe reason to remove it, too.  now that we're using Ajax to add products to the cart, the main page doesn't get redrawn between requests as people shop.  That means we'll continue to display the flash message saying the cart is empty even as we display a cart in the sidebar.
+
+Now that we have added all this Ajax goodness, go ahead and empty your cart and add an item.
+
+Although this might seem like a lot of work, there really are only two essential steps to what we did.  First, we make the cart hide and reveal itself by making the CSS display style conditional on the number of items in the cart.  Second we provided JavaScript instructions to invoke the blind effect when the cart went from being empty to having one item.
+
+So far, these changes have been pretty but not functional.  Let's proceed to changing the behavior of the page.  How about we make clicking the image cause an item to be added to the cart? It turns out that that's easy too with JQuery.
+
