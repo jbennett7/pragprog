@@ -1,0 +1,54 @@
+cd depot/
+vim app/assets/javascripts/store.js.coffee 
+ls
+rake test
+vim app/assets/javascripts/store.js.coffee 
+rake test
+vim app/views/layouts/application.html.erb 
+rake test
+vim test/controllers/line_items_controller_test.rb 
+rake test
+vim test/controllers/line_items_controller_test.rb 
+vim test/controllers/store_controller_test.rb 
+cd ..
+wget http://media.pragprog.com/titles/rails4/code/rails40/depot_e/test/controllers/store_controller.rb
+wget http://media.pragprog.com/titles/rails4/code/rails40/depot_e/test/controllers/store_controller_test.rb
+ls
+vim store_controller_test.rb 
+rm store_controller_test.rb 
+wget http://media.pragprog.com/titles/rails4/code/rails40/depot_o/test/controllers/store_controller_test.rb
+vim store_controller_test.rb 
+diff store_controller_test.rb depot/test/controllers/store_controller_test.rb 
+vidiff store_controller_test.rb depot/test/controllers/store_controller_test.rb 
+vimdiff store_controller_test.rb depot/test/controllers/store_controller_test.rb 
+mv depot/test/controllers/store_controller_test.rb ..
+mv store_controller_test.rb depot/test/controllers/
+cd depot/
+bin/rails test
+bin/rake test
+cat app/assets/javascripts/store.js.coffee 
+mv app/assets/javascripts/store.js.coffee ..
+cd app/assets/javascripts/
+wget http://media.pragprog.com/titles/rails4/code/rails40/depot_o/app/assets/javascripts/store.js.coffee
+ls
+cd ../../..
+bin/rake test
+mv test/controllers/store_controller_test.rb .
+head store_controller_test.rb 
+ls ..
+ls ../..
+mv ../../store_controller_test.rb test/controllers/
+ls
+rm store_controller_test.rb 
+rm app/assets/javascripts/store.js.coffee 
+mv ../store.js.coffee app/assets/javascripts/
+bin/rake test
+vim test/controllers/store_controller_test.rb 
+vim app/views/line_items/create.js.erb 
+vim app/controllers/carts_controller.rb 
+vim app/views/carts/_cart.html.erb 
+vim app/assets/javascripts/destroy.js.erb
+vim app/views/carts/_cart.html.erb 
+vim app/assets/javascripts/destroy.js.erb
+cd ..
+history -w history/history-$(date +%Y%m%d%H%M).txt

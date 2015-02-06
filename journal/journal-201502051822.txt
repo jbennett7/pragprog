@@ -1,0 +1,80 @@
+11.5 Iteration F5: Making Images Clickable
+
+So far, we have been doing things only in response to a click and only on things that are defined to be clickable (namely, buttons and links).  In this case, what we want to do is to handle the onClick event for the image and have it execute some behavior that we define.
+
+In other words, what we want to do is to have a script that executes when the page loads and have it find all the images and associate logic with those images to forward the processing of click events to the "Add to Cart" button for the same entry.
+
+First, we refresh our memory as to how the page in question is organized: app/views/store/index.html.erb
+
+Using this information, we proceed by mdofiying app/assets/javascripts/store.js.coffee.
+
+CoffeeScript is another preprocessor that makes writing assets easier.  In this case, CoffeeScript helps you express JavaScript in a more concise form.  Combined with JQuery, you can produce significant effects with very little effort.
+
+In this case, the first thing we want to do is to define a function that executes on page load.  That's what the first line of this script does: it defines a function using the -> operator and passes it to a function named on, which associates the function with two events: ready and page:change.  ready is the event that fires if people navigate to your page from outside of your site, and page:change is the event that Turbolinks fires if people navigate to your page from within your site.  Associating the script to both makes sure you are covered either way.
+
+The second line finds all images that are immediate children of elements that are defined with class="entry", which themselves are descendants of an element with class="store".  This last part is important because, just like with stylesheets, Rails will by default combine all JavaScripts into a single resource.  For each image found, which could be zero when run against other pages in our application, a function is defined that is associated with the click evenet for that image.
+
+The third and final line processes that click event.  It starts witht he element on which the event occurred, namely, this.  It then proceeds to find the parent element, which will be the idv that specifies class="entry".  Within that element we find the submit button, and we proceed to click it.
+
+Proceeding to the browser, the page looks no different form it did in figure 29, The cart is in the sidebar., on page 141.  But it behaves differently.  Click the images to cause items to be added to the cart.  Marvel in the fact that all this was accomplished with a mere three lines of code.
+
+Of course, you could have done all of this in JavaScript directly, but that would have required five more sets of parentheses, two sets of braces, and overall about 50 percent more characters.  And this just barely scratches the surface of what CoffeeScript can do.  A good place to find out more on this subject is CoffeeScript:  Accelerated JavaScript Develeopment [Bur11].
+
+At this point, it occurs to us that we haven't really done much with respect to testing, but it doesn't really feel like we've made much in the way of functional changes, so we should be fine.  But just to be sure, we run our tests again.
+
+depot> rake test
+.....E...F.EEEE.........EEEE..
+
+Oh dear.  Failures and errors.  This is not good.  Clearly, we need to revisit our approach to testing.  In fact we will do that next.
+
+
+11.6 Testing Ajax Changes
+
+We look at the test failures, and we see a number of errors that look like the following:
+
+  ActionView::Template::Error: undefined method `line_items' for nil:NilClass
+
+Since this error represents the majority of the problems reported, let's address it first so that we can focus on the rest.  According to the test, we will have a problem if we get the product index, and sure enough, when we point our browser to http://localhost:3000/products/, we see the results.
+
+This information is very helpful.  The message identifies the template file that was being processed at the point where the error occurs (app/views/layouts/application.html.erb), the line number where the error occurred, and an excerpt from the template of lines around the error.  From this, we see that the expression being evaluated at the point of error is @cart.line_items, and the message produced is undefined method `line_items' for nil.
+
+So, @cart is apparently nil when we display an index of our products.  That makes sense, because it is set only in the store controller.  This is easy enough to fix; all we need to do is avoid displaying the cart at all unless this value is set.
+
+After this fix, we rerun the tests and see that we are down to one error.  The value of the redirect was not what was expected.  This occurred on creating a line item.  Sure enough, we did change that on Changing the Flow, onpage 141.  Unlike the last change, which was entirely accidental, this change was intentional, so we update the corresponding functional test case.
+
+With this change in place, our tests now once again pass.  Just imagine what could have happened.  A change in one part of an application in order to support a new requirement breaks a function we previously implemented in another part of the application.  If you are not carefull, this can happen in a small application like Depot.  Even if you are careful, this will happen in a large application.
+
+But we are not done yet.  We haven't tested any of our Ajax additions, such as what happens when we click the "Add to Cart" button.  Rails makes that easy too.
+
+We already have a test for 'should create line item', so let's add another one called 'should create line item via ajax'.
+
+This test differs in the name of the test, in the manner of invocation from the create line item test (xhr :post vs. simply post, where xhr stands for the XML-HttpRequest mouthful), and in the expected results.  Instead of a redirect, we expect a successful response containing a call to replace the HTML for the cart, and in that HTML we expect to find a row with an ID of current_item with a value matching Programming Ruby 1.9.  This is achieved by applying the assert_select_jquery() to extract the relevant HTML and then processing that HTML via whatever additional assertions you want to apply.
+
+Finally, there is the CoffeeScript that we introduced.  While testing code that actually executes in the browser is outside the scope of this, we should test that the markup this script depends on is in place.  And it is certainly easy enough.
+
+This way, should an exuberant web designer change the markup on the page in a way that affects our logic, we will be alerted to this issue and be able to make a change before the code goes into production.  Note that :submit is a jQuery-only extension to CSS: we simply need to spell out input[type=submit] in our test.
+
+Keeping tests up-to-date is an important part of maintaining your application.  Rails makes this easy to do.  Agile programmers make testing an integral part of their development efforts.  Many even go so far as to write their tests first before the first line of code is written.
+
+
+What We Just Did
+In this iteration, we added Ajax support to our cart.
+  * We moved the shopping cart into the sidebar.  We then arranged for the create action to redisplay the catalog page.
+  * We used reomte: true to invoke the LineItemsController.create() action using Ajax.
+  * We then used an ERB template to create JavaScript that will execute on the client.  This script made use of jQuery in order to update the page with just the cart's HTML.
+  * To help the user see changes to the cart, we added a highlight effect, using the jQuery-UI library.
+  * We wrote a helper method that hides the cart when it is empty and used jQuery to reveal it when an item is added.
+  * We wrote a test that verifies not only the creation of a line item but also the content of the response that is returned from such a request.
+  * We added a bit of CoffeeScript in order to cause items to be added to the cart when an image is clicked.
+
+The key point to take away is the incremental style of Ajax development.  Start with a conventional application and then add Ajax features, one by one.  Ajax can be hard to debug; by adding it slowly to an application, you make it easier to track down what changed if your application makes it easier to support both Ajax and non-Ajax behavior in the same codebase.
+
+Finally, we'll give you a couple of hints.  First, ifyou plan to do a lot of Ajax development, you'll probably need to get familiar with your browser's JavaScript debugging facilities and with its DOM inspectors, such as Firefox's Firebug, Internet Explorer's Developer Tools, Google Chrome's Developer Tools, Safari's Web Inspector, or Opera's Dragonfly.  And, second, the NoScript plugin for Firefox makes checking JavaScript/no JavaScript a one-click breeze.
+
+Others find it useful to run two different browsers when they are developing - with JavaScript enabled in one and disabled in the other.  Then, as new features are added, poking at it with both browsers will make sure your application works regardless of the state of JavaScript.
+
+
+Playtime
+Here's some stuff to try on your own:
+  * The cart is currently hidden when the user empties it be redrawing the entire catalog.  Can you change the application to use the jQuery UI blind effect instead?
+  * Add a button next to each item in the cart.  When clicked, it should invoke an action to decrement the quantity of the item, deleting it from the cart when the quantity reaches zero.  Get it working without using Ajax first and then add the Ajax goodness.

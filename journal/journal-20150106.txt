@@ -97,7 +97,7 @@ Whenever we want to abstract some processing out of  aview (any kind of view), w
 
 If you look in the app directory, you'll find six subdirectories.
 
-  depot> ls -p app
+  depot> ls -p app/helpers
 
 Not suprisingly, our helper methods go in the helpers directory.  If you look in that directory, you'll find it already contains some files.
 
